@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=k, initial-scale=1.0">
+    <link rel="stylesheet" href="static/style.css">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Car Price Predictor</h1>
+    <form method="post" id="dataform">
+        <label for="company"> Enter company name : </label>
+        <select name="company" id="company" onchange="load_model(this.id,'model')" required="1">
+            <option value="">Select</option>
+            {% for company in companies %}
+                <option value="{{company}}">{{company}}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <label for="company"> Enter Model name : </label>
+        <select name="model" id="model" required="1">
+        </select>
+        <br><br>
+        <label for="year"> Enter Year : </label>
+        <select name="year" id="year" required="1">
+            <option value="">Select</option>
+            {% for year in years%}              
+                <option value="{{year}}">{{year}}</option>
+            {% endfor%}
+        </select>
+        <br><br>
+        <label for="driven">Enter KMs driven : </label>
+        <input name="driven" type="text" id="driven" placeholder="Enter kms">
+        <br><br>
+        <label for="fuel">Enter fuel : </label>
+        <select name="fuel" id="fuel" required="1">
+            <option value="">Select</option>
+            {% for fuel in fuels%}
+                <option value="{{fuel}}">{{fuel}}</option>
+            {% endfor %}
+        </select>
+        <br><br>
+        <button type="submit" onclick="predict()">Predict Price</button>
+    </form>
+    <br>
+    <div>
+        <h1 id="predict"></h1>
+    </div>
+
+
+
+    
+    <script>
+        function load_model(company_id,model_id){
+            companyTag=document.getElementById(company_id);
+            modelTag=document.getElementById(model_id);
+            console.log("viral dobariya")
+            modelTag.value="";
+            modelTag.innerHTML="";
+            com_val=companyTag.value;
+            {% for company in companies%}
+                if (com_val=="{{company}}" ){
+                    {% for model in models %}
+                        {% if company in model %}
+                            new_option=document.createElement("option");
+                            new_option.value="{{model}}";
+                            new_option.innerHTML="{{model}}";
+                            modelTag.options.add(new_option);
+                        {% endif %}
+                    {% endfor %}
+                }
+            {% endfor %}
+        }
+
+        function form_handler(event){
+            event.preventDefault();
+        }
+
+        function predict(){
+            document.getElementById('dataform').addEventListener("submit", form_handler);
+            fd = new FormData(document.getElementById('dataform'));
+            xhr = new XMLHttpRequest({mozSystem: true});
+            xhr.open('POST', '/predict', true);
+            document.getElementById('predict').innerHTML="Wait! Predicting Price...";
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState==XMLHttpRequest.DONE){
+                    document.getElementById('predict').innerHTML=xhr.responseText;
+                }
+            };
+
+            xhr.onload = function(){};
+
+            xhr.send(fd);
+        }
+    </script>   
+</body>     
+</html>
